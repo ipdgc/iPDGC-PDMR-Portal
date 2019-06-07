@@ -1,10 +1,13 @@
-/.box-warning>.box-header>.pull-right>.btn-box-tool>.fa-minus{
-  color:white;
+#startLogo {
+/* real size: 1230×452*/
+   position: absolute;
+   top: 50%;
+   left: 50%;
+   width: 816px;
+   height: 300px;
+   margin-top: -150px; /* Half the height */
+   margin-left: -408px; /* Half the width */
 }
-/.box-warning>.box-header {
-  color:white;
-  background:#f49d13
-                    }
 .box.box-solid.box-success>.box-header{
   color:white;
   background:#f46613
@@ -54,6 +57,7 @@ z-index:1
   display:inline-block;
   vertical-align:middle;
   overflow:visible;
+  padding-right: 10px;
 }
 #dismiss_button_container{
   text-align:right;
