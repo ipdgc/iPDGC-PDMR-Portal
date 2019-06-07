@@ -101,3 +101,4 @@ www/dataResultsTable-res.csv
 www/iPDGC-transparent-logo.png
 *.xlsx
 rsconnect/shinyapps.io/pdgenetics/pdgenetics.dcf
+.Rproj.user
