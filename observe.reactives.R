@@ -102,26 +102,29 @@ RevTbl.reactive <- eventReactive(input$execute, {
 
 preerrorNotification <- eventReactive(input$execute,
                                       {
-                                        if (input$trait %in% warning.List$Exposure && input$outcome %in% warning.List$Outcome) {
-                                          text <- switch(warning.List[warning.List$Exposure == input$trait & warning.List$Outcome == input$outcome]$warning,
-                                                         "snp" = "Less than 10 instrumental variables detected.",
-                                                         "snp+na" = c("Less than 10 instrumental variables detected.", "Number of case-participants in the exposure study is missing. If the exposure is a continuous trait, please ignore."),
-                                                         "snp+lowcase" = c("Less than 10 instrumental variables detected.", "Less than 250 participants in the exposure study."),
-                                                         "na" = "Number of case-participants in the exposure study is missing. If the exposure is a continuous trait, please ignore.",
-                                                         "lowcase" = "Less than 250 case-participants in the exposure study."
-                                          )
-                                          
-                                          msgs <- lapply(text, function(x) {
-                                            notificationItemCustom(div(x, id = "warningNotification"),
-                                                                   icon = icon("exclamation-triangle"),
-                                                                   status = "warning")}
-                                          )
-                                          
-                                          dropdownMenu(headerText = "We advise caution when interpreting the results due to the following:",
-                                                       .list = msgs,
-                                                       type = "notifications"
-                                          )
-                                        } else {
-                                          notificationItem("", icon = icon("check"))
-                                        }
-                                      })
+                                        `if`(input$trait %in% warning.List$Exposure && input$outcome %in% warning.List$Outcome,
+                                             {
+                                               text <- switch(warning.List[warning.List$Exposure == input$trait & warning.List$Outcome == input$outcome]$warning,
+                                                              "snp" = "Less than 10 instrumental variables detected.",
+                                                              "snp+na" = c("Less than 10 instrumental variables detected.", "Number of case-participants in the exposure study is missing. If the exposure is a continuous trait, please ignore."),
+                                                              "snp+lowcase" = c("Less than 10 instrumental variables detected.", "Less than 250 participants in the exposure study."),
+                                                              "na" = "Number of case-participants in the exposure study is missing. If the exposure is a continuous trait, please ignore.",
+                                                              "lowcase" = "Less than 250 case-participants in the exposure study."
+                                               )
+                                               
+                                               msgs <- lapply(text, function(x) {
+                                                 notificationItemCustom(div(x, id = "warningNotification"),
+                                                                        icon = icon("exclamation-triangle"),
+                                                                        status = "warning")}
+                                               )
+                                               
+                                               dropdownMenu(headerText = "We advise caution when interpreting the results due to the following:",
+                                                            .list = msgs,
+                                                            type = "notifications"
+                                               ) 
+                                             },
+                                             {
+                                               notificationItem("", icon = icon("check"))
+                                             })
+                                      }
+                                      )
