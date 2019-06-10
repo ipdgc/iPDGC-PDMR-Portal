@@ -36,11 +36,15 @@ forest.reactive <- eventReactive(input$execute,
                                    #select data for the selected trait
                                    dat <- isolate(dat.Temp[dat.Temp$Exposure==input$trait])
                                    
-                                   #sort the data so that SNPs are in order and summary statistics are at the bottom
-                                   dat <- dat[order(-as.numeric(as.factor(dat$SNP))),]
-                                   
                                    #stops plotting if no data
-                                   req(nrow(dat) >0 )
+                                   req(nrow(dat) > 0)
+                                   
+                                   # #sort the data so that SNPs are in order and summary statistics are at the bottom
+                                   # dat <- dat[order(-as.numeric(dat$b))]
+                                   # res <- as.character(dat$SNP) %in% c("All - Inverse variance weighted", "All - MR Egger", "All - Weighted median")
+                                   # dat <- rbind(dat[!res,], dat[res,])
+                                   # #dat <- dat[order(-as.numeric(as.factor(dat$SNP))),]
+                                   
                                    return(dat)
                                  }
 )
@@ -128,3 +132,14 @@ preerrorNotification <- eventReactive(input$execute,
                                              })
                                       }
                                       )
+#plot.Title.DL <- reactive({paste(input$trait,'vs', input$outcome)})
+
+forest.Plot.Title.DL.Key <- reactive({             
+  if (input$forestTitle) {
+    element_text(size = 20,
+                 face = "bold")
+  } else {
+    element_blank()
+  }
+}
+)

@@ -9,6 +9,7 @@ library(shinyBS)
 library(shinyLP)
 library(shinyjs)
 library(shinyanimate)
+library(ggplot2)
 options(xtable.floating = T)
 options(xtable.timestamp = "")
 

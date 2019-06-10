@@ -15,8 +15,8 @@ forestplotbox <- box(title = "Forest Plot",
                                   inline = T),
                        div(id = 'plotkey',
                            "The",
-                           span("blue points", style = "color:rgb(50,79,217); font-weight:bold"),
-                           "represent the causal estimate (log-odds ratio) of each SNP on the risk of developing PD. Horizontal lines denote 95% confidence intervals. Diamonds represent the causal estimate when combining all SNPs together, using the inverse variance weighted, weighted median and MR Egger methods.",
+                           tags$strong("black points"),
+                           "represent the causal estimate (log-odds ratio) of each SNP on the risk of developing PD. Horizontal lines denote 95% confidence intervals. Colored lines on the bottom of the figure represent the causal estimate when combining all SNPs together, using the inverse variance weighted, weighted median and MR Egger methods.",
                            span("Red", style = "color:rgb(251,0,7); font-weight:bold"),
                            "represents risk estimates.",
                            span("Green", style = "color:rgb(11,84,1); font-weight:bold"),
@@ -176,6 +176,7 @@ FoPlotDLbox <-  box(
   checkboxInput("forestTitle", 'Add title ("Trait" vs "Outcome")'),
   # Download buttons
   downloadButton('FoPlotDLTIFF', 'Download in TIFF (uncompressed)'),
+  downloadButton('FoPlotDLPNG', 'Download in PNG'),
   downloadButton('FoPlotDLPDF', 'Download in PDF'),
   downloadButton('FoPlotDLSVG', 'Download in SVG')
 )
@@ -194,6 +195,7 @@ FuPlotDLbox <-  box(
   checkboxInput("funnelTitle", 'Add title ("Trait" vs "Outcome")'),
   # Download buttons
   downloadButton('FuPlotDLTIFF', 'Download in TIFF (uncompressed)'),
+  downloadButton('FuPlotDLPNG', 'Download in PNG'),
   downloadButton('FuPlotDLPDF', 'Download in PDF'),
   downloadButton('FuPlotDLSVG', 'Download in SVG')
 )

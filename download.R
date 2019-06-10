@@ -1,12 +1,117 @@
+# download functionss
+ForestDL.Function <- function() {
+  dat.temp <- fread(paste0("www/dataForestPlot_PD_", sub(".*(20\\d\\d).*", "\\1", input$outcome), ".csv"))
+  dat.temp <- dat.temp[dat.temp$Exposure==input$trait]# & dat.Temptemp$Outcome==input$outcome)
+  res <- as.character(dat.temp$SNP) %in% c("All - Inverse variance weighted", "All - MR Egger", "All - Weighted median")
+  dat.temp.res <- dat.temp[res,]
+  dat.temp <- dat.temp[!res,]
+  dat.temp <- transform(dat.temp, SNP = reorder(SNP, b) )
+  dat <- rbind(dat.temp.res, dat.temp)
+  dat$highlight <- ifelse(
+    grepl("^All.+", dat$SNP),
+    ifelse(
+      dat$b > 0,
+      "protective",
+      "risk"
+    ),
+    "normal")
+  mycolours <- c("risk" = "red", "protective" = "seagreen4", "normal" = "black")
+  
+  # numCol <- round(isolate(window.size.slow()/200))
+  # construct the plot
+  ggplot(data = dat,
+         aes(x = SNP,
+             y = b,
+             ymin = Lower95,
+             ymax = Upper95)
+  ) +
+    scale_color_manual("Status", values = mycolours) +
+    geom_pointrange(
+      aes(col = highlight)
+    ) +
+    geom_hline(
+      yintercept = 0,
+      linetype=2) +
+    geom_errorbar(
+      width = 0,
+      aes(
+        ymin = Lower95,
+        ymax = Upper95,
+        col = highlight
+      ),
+      cex = 1) +
+    ggtitle(paste(input$trait, 'vs', input$outcome)) +
+    theme(plot.title = forest.Plot.Title.DL.Key(),
+          axis.text.y = element_text(size = 8,
+                                     face = 'bold'),
+          axis.ticks.y = element_blank(),
+          axis.text.x = element_text(face="bold"),
+          axis.title = element_text(size = 16,
+                                    face="bold"),
+          legend.position = "none"
+    ) +
+    #guides(col = guide_legend(ncol = numCol)) +
+    xlab('SNP') +
+    ylab("Beta Coefficient (95% Confidence Interval)") +
+    coord_flip()
+  # #sort the data so that SNPs are in order and summary statistics are at the bottom
+  # # dat$index <- substr(dat$SNP,1,2)
+  # # dat <- dat[order(-as.numeric(as.factor(dat$index)), dat$b),]
+  # dat <- dat[order(-as.numeric(as.factor(dat$SNP))),]
+  # summaryLength <- length(dat$SNP[grepl("^All", dat$SNP)])
+  # len <- nrow(dat[,3])
+  # labelSize <- ifelse(len<30,1,0.35)
+  # summary <- c(rep.int(FALSE,len-3),TRUE, TRUE, TRUE)
+  # if(summaryLength == 3){summary <- c(rep.int(FALSE,len-3),TRUE, TRUE, TRUE)}
+  # if(summaryLength == 2){summary <- c(rep.int(FALSE,len-2),TRUE, TRUE)}
+  # if(summaryLength == 1){summary <- c(rep.int(FALSE,len-1),TRUE)}
+  # IVW <- dat[dat$SNP == "All - Inverse variance weighted"]
+  # if(IVW$b > 0){clrs <- fpColors(box="royalblue",line="darkblue",summary="red")}else{clrs <- fpColors(box="royalblue",line="darkblue",summary="darkgreen")}
+  # #construct the plot
+  # forestplot(labeltext=dat$SNP, 
+  #            txt_gp = fpTxtGp(label=gpar(cex=labelSize), ticks=gpar(cex=labelSize)),
+  #            mean=dat$b, 
+  #            lower=dat$Lower95, 
+  #            upper=dat$Upper95,
+  #            is.summary=summary,
+  #            col=clrs)
+}
+
+FunnelDL.Function <- function(){
+  dat.Temp <- fread(paste0("www/dataForestPlot_PD_", sub(".*(20\\d\\d).*", "\\1", input$outcome), ".csv"))
+  dat <- dat.Temp[dat.Temp$Exposure==input$trait]# & dat.Temptemp$Outcome==input$outcome)
+  
+  dat$`1/SE` <- 1/as.numeric(dat$se)
+  funnelplotlines <- dat[grepl("All", dat$SNP)]
+  dat <- dat[!grepl("^All - ", dat$SNP)]
+  plot(dat$b, dat$`1/SE`, xlab = expression('β'["IV"]), ylab = expression("1/SE"["IV"]))
+  abline(v = funnelplotlines[grepl("All - Inverse variance weighted", funnelplotlines$SNP)][1,c("b")], col="blue", lwd = 2)
+  abline(v = funnelplotlines[grepl("All - MR Egger", funnelplotlines$SNP)][1,c("b")], col="#ff5e5e", lwd = 2)
+  abline(v = funnelplotlines[grepl("All - Weighted median", funnelplotlines$SNP)][1,c("b")], col="#f2c71d", lwd = 2)
+}
+
 # DownloadHandlers for the forest plot
 output$FoPlotDLTIFF <- downloadHandler(
   filename = function() {
     paste('PD_MR_ForestPlot-', Sys.Date(), '.tiff', sep='')
   },
   content = function(file) {
-    tiff(file, bg = input$fobg, width = input$FoDLplotw, height = input$FoDLploth, units = "in", compression = "none", res = 600)
-    ForestDL.Function()
-    dev.off()
+    ggsave(file, plot = ForestDL.Function(), device = tiff(), bg = input$fobg, width = input$FoDLplotw, height = input$FoDLploth, units = "in", compression = "none", dpi = 600, limitsize = F)
+    # tiff(file, bg = input$fobg, width = input$FoDLplotw, height = input$FoDLploth, units = "in", compression = "none", res = 600)
+    # ForestDL.Function()
+    # dev.off()
+  }
+)
+
+output$FoPlotDLPNG <- downloadHandler(
+  filename = function() {
+    paste('PD_MR_ForestPlot-', Sys.Date(), '.png', sep='')
+  },
+  content = function(file) {
+    ggsave(file, plot = ForestDL.Function(), device = "png", bg = input$fobg, width = input$FoDLplotw, height = input$FoDLploth, units = "in", dpi = 600, limitsize = F)
+    # tiff(file, bg = input$fobg, width = input$FoDLplotw, height = input$FoDLploth, units = "in", compression = "none", res = 600)
+    # ForestDL.Function()
+    # dev.off()
   }
 )
 
@@ -15,9 +120,10 @@ output$FoPlotDLPDF <- downloadHandler(
     paste('PD_MR_ForestPlot-', Sys.Date(), '.pdf', sep='')
   },
   content = function(file) {
-    cairo_pdf(file, bg = input$fobg, width = input$FoDLplotw, height = input$FoDLploth)
-    ForestDL.Function()
-    dev.off()
+    ggsave(file, plot = ForestDL.Function(), bg = input$fobg, width = input$FoDLplotw, height = input$FoDLploth, device = cairo_pdf)
+    # cairo_pdf(file, bg = input$fobg, width = input$FoDLplotw, height = input$FoDLploth)
+    # ForestDL.Function()
+    # dev.off()
   }
 )
 
@@ -26,9 +132,10 @@ output$FoPlotDLSVG <- downloadHandler(
     paste('PD_MR_ForestPlot-', Sys.Date(), '.svg', sep='')
   },
   content = function(file) {
-    svg(file, bg = input$fobg, width = input$FoDLplotw, height = input$FoDLploth)
-    ForestDL.Function()
-    dev.off()
+    ggsave(file, plot = ForestDL.Function(), bg = input$fobg, width = input$FoDLplotw, height = input$FoDLploth, device = svg)
+    # svg(file, bg = input$fobg, width = input$FoDLplotw, height = input$FoDLploth)
+    # ForestDL.Function()
+    # dev.off()
   }
 )
 
@@ -39,6 +146,17 @@ output$FuPlotDLTIFF <- downloadHandler(
   },
   content = function(file) {
     tiff(file, bg = input$fubg, width = input$FuDLplotw, height = input$FuDLploth, units = "in", compression = "none", res = 600)
+    FunnelDL.Function()
+    dev.off()
+  }
+)
+
+output$FuPlotDLPNG <- downloadHandler(
+  filename = function() {
+    paste('PD_MR_FunnelPlot-', Sys.Date(), '.png', sep='')
+  },
+  content = function(file) {
+    png(file, bg = input$fubg, width = input$FuDLplotw, height = input$FuDLploth, units = "in", res = 600)
     FunnelDL.Function()
     dev.off()
   }
