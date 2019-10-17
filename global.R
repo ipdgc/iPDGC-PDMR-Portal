@@ -1,3 +1,4 @@
+#deployApp(appName = "MRportal", account = "pdgenetics", appFileManifest = "appFileManifest.txt")
 library(shiny)
 library(forestplot)
 library(dplyr)

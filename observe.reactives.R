@@ -112,7 +112,7 @@ preerrorNotification <- eventReactive(input$execute,
                                                               "snp" = "Less than 10 instrumental variables detected.",
                                                               "snp+na" = c("Less than 10 instrumental variables detected.", "Number of case-participants in the exposure study is missing. If the exposure is a continuous trait, please ignore."),
                                                               "snp+lowcase" = c("Less than 10 instrumental variables detected.", "Less than 250 participants in the exposure study."),
-                                                              "na" = "Number of case-participants in the exposure study is missing. If the exposure is a continuous trait, please ignore.",
+                                                              "na" = "Number of case-participants in the exposure study is missing. If the selected exposure is a continuous trait, please ignore this warning.",
                                                               "lowcase" = "Less than 250 case-participants in the exposure study."
                                                )
                                                
@@ -132,14 +132,21 @@ preerrorNotification <- eventReactive(input$execute,
                                              })
                                       }
                                       )
-#plot.Title.DL <- reactive({paste(input$trait,'vs', input$outcome)})
 
 forest.Plot.Title.DL.Key <- reactive({             
   if (input$forestTitle) {
-    element_text(size = 20,
+    element_text(size = 16,
                  face = "bold")
   } else {
     element_blank()
   }
 }
 )
+
+funnel.Plot.Title.DL.Key <- reactive({
+  if (input$funnelTitle) {
+    paste(input$trait, 'vs', input$outcome)
+  } else {
+    NULL
+  }
+})

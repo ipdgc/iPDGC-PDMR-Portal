@@ -27,19 +27,22 @@ ForestDL.Function <- function() {
   ) +
     scale_color_manual("Status", values = mycolours) +
     geom_pointrange(
-      aes(col = highlight)
+      aes(col = highlight,
+          ymin = Lower95,
+          ymax = Upper95),
+      cex = 0.7
     ) +
     geom_hline(
       yintercept = 0,
-      linetype=2) +
-    geom_errorbar(
-      width = 0,
-      aes(
-        ymin = Lower95,
-        ymax = Upper95,
-        col = highlight
-      ),
-      cex = 1) +
+      linetype = 2) +
+    # geom_errorbar(
+    #   width = 0,
+    #   aes(
+    #     ymin = Lower95,
+    #     ymax = Upper95,
+    #     col = highlight
+    #   ),
+    #   cex = 1) +
     ggtitle(paste(input$trait, 'vs', input$outcome)) +
     theme(plot.title = forest.Plot.Title.DL.Key(),
           axis.text.y = element_text(size = 8,
@@ -50,31 +53,9 @@ ForestDL.Function <- function() {
                                     face="bold"),
           legend.position = "none"
     ) +
-    #guides(col = guide_legend(ncol = numCol)) +
     xlab('SNP') +
     ylab("Beta Coefficient (95% Confidence Interval)") +
     coord_flip()
-  # #sort the data so that SNPs are in order and summary statistics are at the bottom
-  # # dat$index <- substr(dat$SNP,1,2)
-  # # dat <- dat[order(-as.numeric(as.factor(dat$index)), dat$b),]
-  # dat <- dat[order(-as.numeric(as.factor(dat$SNP))),]
-  # summaryLength <- length(dat$SNP[grepl("^All", dat$SNP)])
-  # len <- nrow(dat[,3])
-  # labelSize <- ifelse(len<30,1,0.35)
-  # summary <- c(rep.int(FALSE,len-3),TRUE, TRUE, TRUE)
-  # if(summaryLength == 3){summary <- c(rep.int(FALSE,len-3),TRUE, TRUE, TRUE)}
-  # if(summaryLength == 2){summary <- c(rep.int(FALSE,len-2),TRUE, TRUE)}
-  # if(summaryLength == 1){summary <- c(rep.int(FALSE,len-1),TRUE)}
-  # IVW <- dat[dat$SNP == "All - Inverse variance weighted"]
-  # if(IVW$b > 0){clrs <- fpColors(box="royalblue",line="darkblue",summary="red")}else{clrs <- fpColors(box="royalblue",line="darkblue",summary="darkgreen")}
-  # #construct the plot
-  # forestplot(labeltext=dat$SNP, 
-  #            txt_gp = fpTxtGp(label=gpar(cex=labelSize), ticks=gpar(cex=labelSize)),
-  #            mean=dat$b, 
-  #            lower=dat$Lower95, 
-  #            upper=dat$Upper95,
-  #            is.summary=summary,
-  #            col=clrs)
 }
 
 FunnelDL.Function <- function(){
@@ -84,7 +65,7 @@ FunnelDL.Function <- function(){
   dat$`1/SE` <- 1/as.numeric(dat$se)
   funnelplotlines <- dat[grepl("All", dat$SNP)]
   dat <- dat[!grepl("^All - ", dat$SNP)]
-  plot(dat$b, dat$`1/SE`, xlab = expression('β'["IV"]), ylab = expression("1/SE"["IV"]))
+  plot(dat$b, dat$`1/SE`, xlab = expression('β'["IV"]), ylab = expression("1/SE"["IV"]), main = funnel.Plot.Title.DL.Key())
   abline(v = funnelplotlines[grepl("All - Inverse variance weighted", funnelplotlines$SNP)][1,c("b")], col="blue", lwd = 2)
   abline(v = funnelplotlines[grepl("All - MR Egger", funnelplotlines$SNP)][1,c("b")], col="#ff5e5e", lwd = 2)
   abline(v = funnelplotlines[grepl("All - Weighted median", funnelplotlines$SNP)][1,c("b")], col="#f2c71d", lwd = 2)
@@ -323,9 +304,7 @@ output$qkDLforestplot <- downloadHandler(
     paste('PD_MR_ForestPlot-', Sys.Date(), '.pdf', sep='')
   },
   content = function(file) {
-    cairo_pdf(file, width = 8.5, height = 11)
-    ForestDL.Function()
-    dev.off()
+    ggsave(file, plot = ForestDL.Function(), width = 8.5, height = 11, device = cairo_pdf)
   }
 )
 
